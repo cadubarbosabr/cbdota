@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CBDOTA - Tabela Todos Contra Todos</title>
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    h1, h2 {
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #00b7eb;
+    }
+    h2 {
+      font-size: 1.8em;
+      margin-top: 40px;
+      color: #00b7eb;
+    }
+    /* Match Timeline Styles */
+    .match-timeline {
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 40px;
+    }
+    .match-day {
+      margin-bottom: 20px;
+    }
+    .match-day-header {
+      background: #2a2a2a;
+      padding: 10px;
+      border-radius: 5px 5px 0 0;
+      font-size: 1.2em;
+      font-weight: bold;
+      text-transform: uppercase;
+      border-left: 4px solid #00b7eb;
+    }
+    .match-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2f2f2f;
+      padding: 10px;
+      border-bottom: 1px solid #444;
+      transition: background 0.3s ease;
+    }
+    .match-row:last-child {
+      border-bottom: none;
+    }
+    .match-row:hover {
+      background: #383838;
+    }
+    .match-date {
+      flex: 0 0 100px;
+      font-size: 0.9em;
+      color: #bbb;
+    }
+    .match-teams {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .team-name {
+      font-weight: bold;
+      color: #fff;
+      font-size: 1.1em;
+    }
+    .team-score {
+      font-weight: bold;
+      color: #00b7eb;
+      margin: 0 5px;
+    }
+    .match-details {
+      flex: 0 0 100px;
+      text-align: right;
+      font-size: 0.9em;
+      color: #bbb;
+    }
+    /* Round-Robin Table Styles */
+    table {
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: #2f2f2f;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      width: 100%;
+      max-width: 800px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 10px 15px;
+      text-align: center;
+      transition: background 0.3s ease;
+    }
+    th {
+      background: #00b7eb;
+      color: #fff;
+      font-weight: 600;
+    }
+    td {
+      background: #3a3a3a;
+      color: #fff;
+    }
+    .score-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+    input[type="number"] {
+      width: 40px;
+      text-align: center;
+      border: 1px solid #555;
+      border-radius: 5px;
+      padding: 3px;
+      background: #444;
+      color: #fff;
+    }
+    .highlight {
+      background-color: #4a4a4a;
+    }
+    .match-cell {
+      position: relative;
+      cursor: pointer;
+    }
+    .match-cell:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      background: #555;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 5px;
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 0.9em;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+    /* Classification and Playoff Styles */
+    .classification, .playoff-stage {
+      background: #2f2f2f;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+    .classification li, .playoff-stage li {
+      padding: 10px;
+      border-bottom: 1px solid #444;
+      font-size: 1.1em;
+      color: #fff;
+    }
+    .classification li:last-child, .playoff-stage li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>CBDOTA - Tabela Todos Contra Todos</h1>
+
+  <!-- Match Timeline -->
+  <h2>Calendário de Jogos</h2>
+  <div class="match-timeline" id="matchTimeline"></div>
+
+  <!-- Round-Robin Table -->
+  <h2>Tabela de Resultados</h2>
+  <table id="roundRobin">
+    <thead>
+      <tr>
+        <th>Times</th>
+        <th>Visagerino</th>
+        <th>Socios</th>
+        <th>Innovation</th>
+        <th>Sekay</th>
+        <th>Galex</th>
+        <th>Rock N Sports</th>
+        <th>Loucademia</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <h2>Classificação</h2>
+  <ol class="classification" id="classificacao"></ol>
+
+  <h2>Chaveamento - Quartas de Final</h2>
+  <ol class="playoff-stage" id="quartas"></ol>
+
+  <h2>Chaveamento - Semifinal</h2>
+  <ol class="playoff-stage" id="semifinal"></ol>
+
+  <h2>Chaveamento - Final</h2>
+  <ol class="playoff-stage" id="final"></ol>
+
+  <script>
+    const teams = [
+      'Visagerino', 'Socios', 'Innovation',
+      'Sekay', 'Galex', 'Rock N Sports', 'Loucademia'
+    ];
+
+    // Match schedules as per the image
+    const schedules = {
+      'Visagerino_Socios': { day: 'Sábado', time: '22h' },
+      'Visagerino_Innovation': { day: 'Sexta-feira', time: '21h' },
+      'Visagerino_Sekay': { day: 'Sábado', time: '21h' },
+      'Visagerino_Galex': { day: 'Sexta-feira', time: '20h' },
+      'Visagerino_Rock N Sports': { day: 'Sábado', time: '22h' },
+      'Visagerino_Loucademia': { day: 'Sexta-feira', time: '21h' },
+      'Socios_Innovation': { day: 'Sexta-feira', time: '23h' },
+      'Socios_Sekay': { day: 'Sexta-feira', time: '23h' },
+      'Socios_Galex': { day: 'Sexta-feira', time: '21h' },
+      'Socios_Rock N Sports': { day: 'Sábado', time: '19h' },
+      'Socios_Loucademia': { day: 'Sexta-feira', time: '22h' },
+      'Innovation_Sekay': { day: 'Sexta-feira', time: '22h' },
+      'Innovation_Galex': { day: 'Sábado', time: '19h' },
+      'Innovation_Rock N Sports': { day: 'Sexta-feira', time: '20h' },
+      'Innovation_Loucademia': { day: 'Sábado', time: '22h' },
+      'Sekay_Galex': { day: 'Sábado', time: '22h' },
+      'Sekay_Rock N Sports': { day: 'Sábado', time: '21h' },
+      'Sekay_Loucademia': { day: 'Sábado', time: '19h' },
+      'Galex_Rock N Sports': { day: 'Sábado', time: '21h' },
+      'Galex_Loucademia': { day: 'Sábado', time: '21h' },
+      'Rock N Sports_Loucademia': { day: 'Sábado', time: '20h' }
+    };
+
+    const resultados = {};
+
+    // Generate the match timeline with static dates
+    function gerarMatchTimeline() {
+      const timeline = document.getElementById("matchTimeline");
+      const matches = [];
+
+      // Convert schedules to a list of matches with sortable timestamps
+      Object.keys(schedules).forEach(matchKey => {
+        const [team1, team2] = matchKey.split('_');
+        const { day, time } = schedules[matchKey];
+        const dateStr = day === 'Sexta-feira' ? '2025-05-23' : '2025-05-24';
+        const timeNum = parseInt(time.replace('h', ''));
+        const timestamp = new Date(`${dateStr}T${timeNum.toString().padStart(2, '0')}:00:00`).getTime();
+        matches.push({ team1, team2, day, time, timestamp, dateStr });
+      });
+
+      // Sort matches by timestamp
+      matches.sort((a, b) => a.timestamp - b.timestamp);
+
+      // Group matches by date
+      const matchesByDate = matches.reduce((acc, match) => {
+        const dateKey = match.dateStr;
+        if (!acc[dateKey]) acc[dateKey] = [];
+        acc[dateKey].push(match);
+        return acc;
+      }, {});
+
+      // Generate HTML for each date
+      Object.keys(matchesByDate).forEach(date => {
+        const matchDay = document.createElement("div");
+        matchDay.classList.add("match-day");
+
+        const dateHeader = document.createElement("div");
+        dateHeader.classList.add("match-day-header");
+        // Static date formatting
+        const displayDate = date === '2025-05-23' ? 'Sexta-feira, 23 de maio de 2025' : 'Sábado, 24 de maio de 2025';
+        dateHeader.innerText = displayDate;
+        matchDay.appendChild(dateHeader);
+
+        matchesByDate[date].forEach(match => {
+          const matchRow = document.createElement("div");
+          matchRow.classList.add("match-row");
+
+          const matchDate = document.createElement("div");
+          matchDate.classList.add("match-date");
+          matchDate.innerText = match.time;
+          matchRow.appendChild(matchDate);
+
+          const matchTeams = document.createElement("div");
+          matchTeams.classList.add("match-teams");
+          matchTeams.innerHTML = `
+            <span class="team-name">${match.team1}</span>
+            <span class="team-score" id="score_${match.team1}_${match.team2}">-</span>
+            x
+            <span class="team-score" id="score_${match.team2}_${match.team1}">-</span>
+            <span class="team-name">${match.team2}</span>
+          `;
+          matchRow.appendChild(matchTeams);
+
+          const matchDetails = document.createElement("div");
+          matchDetails.classList.add("match-details");
+          matchDetails.innerText = "CBDOTA Tournament";
+          matchRow.appendChild(matchDetails);
+
+          matchDay.appendChild(matchRow);
+        });
+
+        timeline.appendChild(matchDay);
+      });
+    }
+
+    // Generate the round-robin table
+    function gerarTabela() {
+      const tbody = document.getElementById("tableBody");
+      teams.forEach((time1, i) => {
+        const row = document.createElement("tr");
+        const th = document.createElement("th");
+        th.innerText = time1;
+        row.appendChild(th);
+
+        teams.forEach((time2, j) => {
+          const cell = document.createElement("td");
+
+          if (i === j) {
+            cell.innerHTML = 'X';
+            cell.classList.add("highlight");
+          } else if (i < j) {
+            const matchKey = `${time1}_${time2}`;
+            cell.classList.add("match-cell");
+
+            const scoreContainer = document.createElement("div");
+            scoreContainer.classList.add("score-container");
+
+            const input1 = document.createElement("input");
+            input1.type = "number";
+            input1.id = `input_${time1}_${time2}`;
+            const input2 = document.createElement("input");
+            input2.type = "number";
+            input2.id = `input_${time2}_${time1}`;
+
+            input1.addEventListener("input", () => {
+              atualizarPlacar(matchKey, input1.value, input2.value);
+              calcularClassificacao();
+            });
+            input2.addEventListener("input", () => {
+              atualizarPlacar(matchKey, input1.value, input2.value);
+              calcularClassificacao();
+            });
+
+            scoreContainer.appendChild(input1);
+            scoreContainer.appendChild(document.createTextNode(" x "));
+            scoreContainer.appendChild(input2);
+            cell.appendChild(scoreContainer);
+
+            if (schedules[matchKey]) {
+              const tooltip = document.createElement("span");
+              tooltip.classList.add("tooltip");
+              tooltip.innerText = `${schedules[matchKey].day}, ${schedules[matchKey].time}`;
+              cell.appendChild(tooltip);
+            }
+          }
+
+          row.appendChild(cell);
+        });
+
+        tbody.appendChild(row);
+      });
+    }
+
+    // Update scores in the timeline
+    function atualizarPlacar(matchKey, score1, score2) {
+      const [team1, team2] = matchKey.split('_');
+      const scoreElement1 = document.getElementById(`score_${team1}_${team2}`);
+      const scoreElement2 = document.getElementById(`score_${team2}_${team1}`);
+      scoreElement1.innerText = score1 || '-';
+      scoreElement2.innerText = score2 || '-';
+    }
+
+    // Calculate points and update classification
+    function calcularClassificacao() {
+      const pontos = {};
+      const saldo = {};
+
+      teams.forEach(team => {
+        pontos[team] = 0;
+        saldo[team] = 0;
+      });
+
+      teams.forEach((time1, i) => {
+        teams.forEach((time2, j) => {
+          if (i < j) {
+            const a = document.getElementById(`input_${time1}_${time2}`);
+            const b = document.getElementById(`input_${time2}_${time1}`);
+            if (!a || !b || a.value === "" || b.value === "") return;
+
+            const g1 = parseInt(a.value);
+            const g2 = parseInt(b.value);
+
+            if (g1 > g2) pontos[time1] += 3;
+            else if (g1 < g2) pontos[time2] += 3;
+            else {
+              pontos[time1] += 1;
+              pontos[time2] += 1;
+            }
+
+            saldo[time1] += g1 - g2;
+            saldo[time2] += g2 - g1;
+          }
+        });
+      });
+
+      // Sort by points and goal difference
+      const classificados = Object.keys(pontos)
+        .map(t => ({ time: t, pts: pontos[t], saldo: saldo[t] }))
+        .sort((a, b) => b.pts - a.pts || b.saldo - a.saldo);
+
+      const list = document.getElementById("classificacao");
+      list.innerHTML = "";
+      classificados.forEach(c => {
+        const li = document.createElement("li");
+        li.innerText = `${c.time} - ${c.pts} pts (saldo ${c.saldo})`;
+        list.appendChild(li);
+      });
+
+      // Update playoff stages
+      gerarQuartas(classificados.slice(0, 4));
+      gerarSemifinal(classificados.slice(0, 4));
+      gerarFinal(classificados.slice(0, 4));
+    }
+
+    // Generate quarter-finals
+    function gerarQuartas(top4) {
+      const q = document.getElementById("quartas");
+      q.innerHTML = "";
+
+      const pairings = [
+        [top4[0].time, top4[3].time],
+        [top4[1].time, top4[2].time],
+      ];
+
+      pairings.forEach(([a, b]) => {
+        const li = document.createElement("li");
+        li.innerText = `${a} vs ${b}`;
+        q.appendChild(li);
+      });
+    }
+
+    // Generate semifinals
+    function gerarSemifinal(top4) {
+      const s = document.getElementById("semifinal");
+      s.innerHTML = "";
+
+      // Simulate winners of quarter-finals (for simplicity, taking top 2 from classification)
+      const semifinalists = [top4[0].time, top4[1].time]; // Assuming 1st beats 4th, 2nd beats 3rd
+      const pairing = [semifinalists[0], semifinalists[1]];
+
+      const li = document.createElement("li");
+      li.innerText = `${pairing[0]} vs ${pairing[1]}`;
+      s.appendChild(li);
+    }
+
+    // Generate final
+    function gerarFinal(top4) {
+      const f = document.getElementById("final");
+      f.innerHTML = "";
+
+      // Simulate winners of semifinal (for simplicity, taking top 2 from classification)
+      const finalists = [top4[0].time, top4[1].time]; // Assuming 1st and 2nd advance
+      const pairing = [finalists[0], finalists[1]];
+
+      const li = document.createElement("li");
+      li.innerText = `${pairing[0]} vs ${pairing[1]}`;
+      f.appendChild(li);
+    }
+
+    // Generate both the timeline and round-robin table on page load
+    gerarMatchTimeline();
+    gerarTabela();
+  </script>
+
+</body>
+</html>
